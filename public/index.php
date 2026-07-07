@@ -1,25 +1,16 @@
 <?php
-// 1. On charge l'autoload de Composer pour trouver la classe Database
+// On charge l'autoload de Composer pour trouver la classe Database
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// 2. On indique qu'on veut utiliser la classe Database
-use Config\Database;
+use App\Router;
+use App\Controllers\MenuController;
 
-echo "<h1>Test de connexion à MariaDB</h1>";
+// Création du routeur
+$router = new Router();
 
-try {
-    // 3. On tente de récupérer la connexion PDO
-    $db = Database::getConnection();
-    
-    // 4. On exécute une petite requête SQL pour être sûr que la BDD répond
-    $query = $db->query("SELECT VERSION() as version");
-    $result = $query->fetch();
+//Les routes API (Format : addRoute(METHODE, URL, NOM_CLASSE, NOM_METHODE))
+$router->addRoute('GET', '/api/menus', 'App\Controllers\MenuController', 'index');
+$router->addRoute('GET', '/api/menu/details', 'App\Controllers\MenuController', 'show');
 
-    echo "<p style='color: green;'>✅ Connexion réussie !</p>";
-    echo "<p>Version du serveur MariaDB : <strong>" . $result['version'] . "</strong></p>";
-
-} catch (Exception $e) {
-    // 5. Si ça rate, on affiche l'erreur proprement
-    echo "<p style='color: red;'>❌ Échec de la connexion.</p>";
-    echo "<p>Erreur : " . $e->getMessage() . "</p>";
-}
+// On lance l'aiguillage
+$router->dispatch();

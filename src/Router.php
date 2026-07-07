@@ -1,16 +1,16 @@
 <?php
 namespace App;
-// backend/src/Router.php
 
 class Router {
     private $routes = [];
 
     // Méthode pour enregistrer une route
-    public function addRoute($method, $path, $handler) {
+    public function addRoute($method, $path, $controller, $action) {
         $this->routes[] = [
             'method' => $method,
             'path' => $path,
-            'handler' => $handler
+            'controller' => $controller,
+            'action' => $action
         ];
     }
 
@@ -20,9 +20,10 @@ class Router {
         $method = $_SERVER['REQUEST_METHOD'];
 
         foreach ($this->routes as $route) {
-            if ($route['path'] === $uri && $route['method'] === $method) {
-                // Si la route correspond, on appelle la fonction (handler)
-                return call_user_func($route['handler']);
+            if ($this->matchRoute($route['path'], $uri, $method)) { // Utiliser la méthode matchRoute
+                // Instanciation du contrôleur
+                $controller = new $route['controller']();
+                return call_user_func([$controller, $route['action']]);
             }
         }
 
@@ -30,4 +31,10 @@ class Router {
         http_response_code(404);
         echo json_encode(["error" => "Route non trouvée"]);
     }
+
+    private function matchRoute($routePath, $requestUri, $requestMethod) {
+    return $requestUri === $routePath && $requestMethod === $requestMethod; // Assurez-vous d'utiliser $requestMethod
+}
+
+
 }
